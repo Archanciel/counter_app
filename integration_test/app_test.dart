@@ -8,7 +8,7 @@ void main() {
 
   group('end-to-end test', () {
     testWidgets('tap on the floating action button, verify counter', (
-        tester,
+        WidgetTester tester,
         ) async {
       // Load app widget.
       await tester.pumpWidget(const MyApp());

@@ -5,17 +5,28 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MaterialApp(home: _SimpleExampleApp()));
+  runApp(const MyApp());
 }
 
-class _SimpleExampleApp extends StatefulWidget {
-  const _SimpleExampleApp();
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
-  _SimpleExampleAppState createState() => _SimpleExampleAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: SimpleExampleApp(),
+    );
+  }
 }
 
-class _SimpleExampleAppState extends State<_SimpleExampleApp> {
+class SimpleExampleApp extends StatefulWidget {
+  const SimpleExampleApp({Key? key}) : super(key: key);
+
+  @override
+  SimpleExampleAppState createState() => SimpleExampleAppState();
+}
+
+class SimpleExampleAppState extends State<SimpleExampleApp> {
   late AudioPlayer player = AudioPlayer();
 
   @override
@@ -98,14 +109,14 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _playerState = player.state;
     player.getDuration().then(
           (value) => setState(() {
-            _duration = value;
-          }),
-        );
+        _duration = value;
+      }),
+    );
     player.getCurrentPosition().then(
           (value) => setState(() {
-            _position = value;
-          }),
-        );
+        _position = value;
+      }),
+    );
     _initStreams();
   }
 
@@ -169,9 +180,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             player.seek(Duration(milliseconds: position.round()));
           },
           value: (_position != null &&
-                  _duration != null &&
-                  _position!.inMilliseconds > 0 &&
-                  _position!.inMilliseconds < _duration!.inMilliseconds)
+              _duration != null &&
+              _position!.inMilliseconds > 0 &&
+              _position!.inMilliseconds < _duration!.inMilliseconds)
               ? _position!.inMilliseconds / _duration!.inMilliseconds
               : 0.0,
         ),
@@ -179,8 +190,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
           _position != null
               ? '$_positionText / $_durationText'
               : _duration != null
-                  ? _durationText
-                  : '',
+              ? _durationText
+              : '',
           style: const TextStyle(fontSize: 16.0),
         ),
       ],
@@ -193,7 +204,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     });
 
     _positionSubscription = player.onPositionChanged.listen(
-      (p) => setState(() => _position = p),
+          (p) => setState(() => _position = p),
     );
 
     _playerCompleteSubscription = player.onPlayerComplete.listen((event) {
@@ -205,10 +216,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
     _playerStateChangeSubscription =
         player.onPlayerStateChanged.listen((state) {
-      setState(() {
-        _playerState = state;
-      });
-    });
+          setState(() {
+            _playerState = state;
+          });
+        });
   }
 
   Future<void> _play() async {
