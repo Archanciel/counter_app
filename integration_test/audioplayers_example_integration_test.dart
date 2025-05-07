@@ -1,9 +1,27 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:flutter/material.dart';
 import 'package:counter_app/tools/audioplayers_example.dart';
+import 'package:process_run/process_run.dart';
 
-void main() {
+Future<void> main() async {
+  // Execute ADB command to push the file to the emulator
+  var shell = Shell();
+
+  try {
+    // Push the audio file to the emulator
+    await shell.run(
+      'adb push "C:\\temp\\Rumanian folk dances Pe Loc.mp3" "/storage/emulated/0/Download/Rumanian.mp3"'
+    );
+
+    print('File pushed successfully to emulator');
+  } catch (e) {
+    print('Error pushing file to emulator: $e');
+  }
+
+  // Now initialize the test binding
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Audio Player Integration Test', () {
@@ -12,6 +30,8 @@ void main() {
     ) async {
       // Load app widget.
       await tester.pumpWidget(const MyApp());
+
+      await tester.pumpAndSettle(const Duration(seconds: 2));
 
       // Find the play button
       final playButton = find.byIcon(Icons.play_arrow);
@@ -36,7 +56,7 @@ void main() {
       // Assert that the pause button is disabled after pausing
       expect(playButton, findsOneWidget);
     });
-   testWidgets('6 sec. Play and Pause Test', (
+    testWidgets('6 sec. Play and Pause Test', (
       WidgetTester tester,
     ) async {
       // Load app widget.
@@ -50,7 +70,7 @@ void main() {
       await tester.tap(playButton);
       await tester.pumpAndSettle();
 
-      for (int i = 0; i < 5; i++) {
+      for (int i = 0; i < 6; i++) {
         await tester.pumpAndSettle(const Duration(seconds: 1));
       }
 
