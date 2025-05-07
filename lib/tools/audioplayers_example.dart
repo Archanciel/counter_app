@@ -3,6 +3,7 @@ import 'package:path/path.dart' as path;
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,16 +33,14 @@ class SimpleExampleAppState extends State<SimpleExampleApp> {
   @override
   void initState() {
     super.initState();
-
-    // Create the audio player.
     player = AudioPlayer();
-
-    // Set the release mode to keep the source after playback has completed.
     player.setReleaseMode(ReleaseMode.stop);
 
-    // Start the player as soon as the app is displayed.
+    // Request permissions before accessing files
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await player.setSource(DeviceFileSource("C:${path.separator}temp${path.separator}Rumanian folk dances, Pe Loc - sonnerie.mp3"));
+      await requestPermissions();
+      await player.setSource(
+          DeviceFileSource("/storage/emulated/0/Download/Rumanian folk dances Pe Loc.mp3"));
       await player.resume();
     });
   }
@@ -62,6 +61,18 @@ class SimpleExampleAppState extends State<SimpleExampleApp> {
       ),
       body: PlayerWidget(player: player),
     );
+  }
+
+  // Add this function to your SimpleExampleAppState class
+  Future<void> requestPermissions() async {
+    if (await Permission.storage.status.isDenied) {
+      await Permission.storage.request();
+    }
+
+    // For Android 13+
+    if (await Permission.audio.status.isDenied) {
+      await Permission.audio.request();
+    }
   }
 }
 
@@ -109,14 +120,14 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _playerState = player.state;
     player.getDuration().then(
           (value) => setState(() {
-        _duration = value;
-      }),
-    );
+            _duration = value;
+          }),
+        );
     player.getCurrentPosition().then(
           (value) => setState(() {
-        _position = value;
-      }),
-    );
+            _position = value;
+          }),
+        );
     _initStreams();
   }
 
@@ -180,9 +191,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             player.seek(Duration(milliseconds: position.round()));
           },
           value: (_position != null &&
-              _duration != null &&
-              _position!.inMilliseconds > 0 &&
-              _position!.inMilliseconds < _duration!.inMilliseconds)
+                  _duration != null &&
+                  _position!.inMilliseconds > 0 &&
+                  _position!.inMilliseconds < _duration!.inMilliseconds)
               ? _position!.inMilliseconds / _duration!.inMilliseconds
               : 0.0,
         ),
@@ -190,8 +201,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
           _position != null
               ? '$_positionText / $_durationText'
               : _duration != null
-              ? _durationText
-              : '',
+                  ? _durationText
+                  : '',
           style: const TextStyle(fontSize: 16.0),
         ),
       ],
@@ -204,7 +215,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     });
 
     _positionSubscription = player.onPositionChanged.listen(
-          (p) => setState(() => _position = p),
+      (p) => setState(() => _position = p),
     );
 
     _playerCompleteSubscription = player.onPlayerComplete.listen((event) {
@@ -216,10 +227,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
     _playerStateChangeSubscription =
         player.onPlayerStateChanged.listen((state) {
-          setState(() {
-            _playerState = state;
-          });
-        });
+      setState(() {
+        _playerState = state;
+      });
+    });
   }
 
   Future<void> _play() async {
